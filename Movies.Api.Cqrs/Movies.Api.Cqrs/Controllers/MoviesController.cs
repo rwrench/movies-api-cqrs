@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Api.Cqrs.Application.Commands;
+using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Queries;
 
 namespace Movies.Api.Cqrs.Controllers;
@@ -27,9 +28,10 @@ public class MoviesController : Controller
 
     [HttpGet]
     public async Task<IActionResult> GetAll(
+        [FromQuery] GetAllMoviesOptions options,
         CancellationToken token)
     {
-        var movies = await _mediator.Send(new GetAllMoviesQuery(), token);
+        var movies = await _mediator.Send(new GetAllMoviesQuery(options), token);
         return Ok(movies);
     }
 

@@ -1,15 +1,10 @@
 ﻿using Movies.Api.Cqrs.Application.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Movies.Api.Cqrs.Application.Repositories
 {
     public interface IMovieQueryRepository
     {
-        Task<IEnumerable<Movie?>> GetAllAsync(
-           CancellationToken cancellationToken = default);
+        Task<IEnumerable<Movie?>> GetAllAsync(GetAllMoviesOptions options, 
+            CancellationToken cancellationToken = default);
     }
 }
