@@ -2,6 +2,7 @@
 {
     public class MovieRating
     {
+        public required Guid Id { get; init; }
         public required Guid MovieId { get; set; }
         public required string Slug { get; set; }
 
