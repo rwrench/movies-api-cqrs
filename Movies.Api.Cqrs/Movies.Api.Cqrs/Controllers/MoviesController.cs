@@ -35,4 +35,13 @@ public class MoviesController : Controller
         return Ok(movies);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(
+       Guid id,
+       CancellationToken token)
+    {
+        var movies = await _mediator.Send(new GetMovieByIdQuery(id,null), token);
+        return Ok(movies);
+    }
+
 }

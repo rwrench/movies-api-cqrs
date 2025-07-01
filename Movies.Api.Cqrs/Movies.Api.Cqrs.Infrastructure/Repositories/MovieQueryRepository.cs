@@ -49,5 +49,15 @@ namespace Movies.Api.Cqrs.Infrastructure.Repositories
 
             return await query.ToListAsync(cancellationToken);
         }
+
+        public async Task<Movie?> GetByIdAsync(
+            Guid id, Guid? userId = null, 
+            CancellationToken cancellationToken = default)
+        {
+            return await _context.Movies
+                .Where(m => m.Id == id && (userId == null || m.UserId == userId))
+                .FirstOrDefaultAsync(cancellationToken);
+
+        }
     }
 }

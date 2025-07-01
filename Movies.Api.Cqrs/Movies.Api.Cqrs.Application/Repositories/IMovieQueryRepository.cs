@@ -6,5 +6,8 @@ namespace Movies.Api.Cqrs.Application.Repositories
     {
         Task<IEnumerable<Movie?>> GetAllAsync(GetAllMoviesOptions options, 
             CancellationToken cancellationToken = default);
+
+        Task<Movie?> GetByIdAsync(Guid id, Guid? userId = null,
+          CancellationToken cancellationToken = default);
     }
 }
