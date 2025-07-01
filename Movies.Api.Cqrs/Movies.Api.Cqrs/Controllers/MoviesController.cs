@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Api.Cqrs.Application.Commands;
+using Movies.Api.Cqrs.Dto;
 using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Queries;
 
@@ -26,6 +27,23 @@ public class MoviesController : Controller
         return Ok(movieId);
     }
 
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(
+        [FromRoute] Guid id,
+        [FromBody] UpdateMovieDto dto,
+        CancellationToken token)
+    {
+        var command = new UpdateMovieCommand(
+            id,
+            dto.Title!,
+            dto.YearOfRelease,
+            dto.Genres!,
+            dto.UserId
+        );
+        var result = await _mediator.Send(command, token);
+        return Ok(result);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] GetAllMoviesOptions options,
@@ -35,7 +53,7 @@ public class MoviesController : Controller
         return Ok(movies);
     }
 
-    [HttpGet("{id:guid}")] // Added route constraint to resolve ambiguity
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(
        Guid id,
        CancellationToken token)
@@ -44,7 +62,7 @@ public class MoviesController : Controller
         return Ok(movies);
     }
 
-    [HttpGet("slug/{slug}")] // Changed route pattern to avoid conflict
+    [HttpGet("slug/{slug}")]
     public async Task<IActionResult> GetBySlug(
       string slug,
       CancellationToken token)
@@ -53,3 +71,5 @@ public class MoviesController : Controller
         return Ok(movies);
     }
 }
+
+

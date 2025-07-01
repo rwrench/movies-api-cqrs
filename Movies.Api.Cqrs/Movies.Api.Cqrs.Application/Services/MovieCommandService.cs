@@ -3,29 +3,22 @@ using FluentValidation;
 using Movies.Api.Cqrs.Application.Commands;
 using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Repositories;
-using Movies.Api.Cqrs.Application.Validators;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Movies.Api.Cqrs.Application.Services
 {
     public class MovieCommandService : IMovieCommandService
     {
         readonly IMovieCommandRepository _movieCommandRepository;
-        readonly IValidator<Movie> _validator; // Change type to IValidator<Movie>
+        readonly IValidator<Movie> _validator; 
         readonly IMapper _mapper;
 
         public MovieCommandService(
             IMovieCommandRepository movieCommandRepository,
-            IValidator<Movie> validator, // Change type to IValidator<Movie>
+            IValidator<Movie> validator, 
             IMapper mapper)
         {
             _movieCommandRepository = movieCommandRepository;
-            _validator = validator; // Update assignment to match type change
+            _validator = validator; 
             _mapper = mapper;
         }
 
@@ -38,14 +31,17 @@ namespace Movies.Api.Cqrs.Application.Services
             return await _movieCommandRepository.CreateAsync(movie, token);
         }
 
-        public Task<bool> DeleteAsync(DeleteMovieCommand command, CancellationToken token = default)
+        public async Task<bool> DeleteAsync(DeleteMovieCommand command, 
+            CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            return await _movieCommandRepository.DeleteAsync(command.Id, command.UserId, token);
         }
 
-        public Task<bool> UpdateAsync(UpdateMovieCommand command, CancellationToken token = default)
+        public async Task<bool> UpdateAsync(UpdateMovieCommand command, 
+            CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            var movie = _mapper.Map<Movie>(command);
+            return await _movieCommandRepository.UpdateAsync(movie, token);
         }
     }
 }
