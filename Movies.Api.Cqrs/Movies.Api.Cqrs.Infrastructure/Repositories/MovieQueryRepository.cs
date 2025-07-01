@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Movies.Api.Cqrs.Application.Extensions;
 using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Repositories;
 
@@ -59,5 +60,24 @@ namespace Movies.Api.Cqrs.Infrastructure.Repositories
                 .FirstOrDefaultAsync(cancellationToken);
 
         }
+
+        public Task<Movie?> GetBySlugAsync(
+         string slug,
+         Guid? userId = null,
+         CancellationToken token = default)
+        {
+            var data = slug.ParseTitleAndYear();
+            if (data == null)
+                return Task.FromResult<Movie?>(null);
+
+            var query = _context.Movies.Where(m =>
+                m.Title == data.Value.Title &&
+                m.YearOfRelease == data.Value.YearOfRelease &&
+                (userId == null || m.UserId == userId)
+            );
+
+            return query.FirstOrDefaultAsync(token);
+        }
+
     }
 }

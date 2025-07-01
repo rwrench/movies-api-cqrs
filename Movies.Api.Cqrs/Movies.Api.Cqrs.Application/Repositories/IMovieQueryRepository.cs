@@ -9,5 +9,13 @@ namespace Movies.Api.Cqrs.Application.Repositories
 
         Task<Movie?> GetByIdAsync(Guid id, Guid? userId = null,
           CancellationToken cancellationToken = default);
+
+
+        Task<Movie?> GetBySlugAsync(
+            string slug,
+            Guid? userId = null,
+            CancellationToken token = default);
     }
+
+
 }

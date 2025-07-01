@@ -42,34 +42,6 @@ namespace Movies.Api.Cqrs.Infrastructure.Repositories
             return true;
         }
 
-        public Task<Movie?> GetByIdAsync(
-            Guid id, 
-            Guid? userId = null,
-            CancellationToken token = default)
-        {
-            return _context.Movies.Where(m => m.Id == id &&
-                (userId == null || m.UserId == userId))
-                .FirstOrDefaultAsync();
-        }
-
-        public Task<Movie?> GetBySlugAsync(
-            string slug, 
-            Guid? userId = null,
-            CancellationToken token = default)
-        {
-            var data = slug.ParseTitleAndYear();
-            if (data == null)
-                return Task.FromResult<Movie?>(null);
-
-            var query = _context.Movies.Where(m =>
-                m.Title == data.Value.Title &&
-                m.YearOfRelease == data.Value.YearOfRelease &&
-                (userId == null || m.UserId == userId)
-            );
-
-            return query.FirstOrDefaultAsync(token);
-        }
-
         public Task<bool> UpdateAsync(Movie movie, CancellationToken token)
         {
            _context.Movies.Update(movie);

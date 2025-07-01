@@ -6,8 +6,8 @@ namespace Movies.Api.Cqrs.Application.Validators;
 
 public class MovieValidator : AbstractValidator<Movie>
 {
-    private readonly IMovieCommandRepository _movieRepo;
-    public MovieValidator(IMovieCommandRepository movieRepo)
+    private readonly IMovieQueryRepository _movieRepo;
+    public MovieValidator(IMovieQueryRepository movieRepo)
     {
         _movieRepo = movieRepo;
         RuleFor(x => x.Id).NotEmpty();

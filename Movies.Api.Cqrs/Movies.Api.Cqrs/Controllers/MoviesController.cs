@@ -22,7 +22,7 @@ public class MoviesController : Controller
         CreateMovieCommand command,
         CancellationToken token)
     {
-        var movieId = await _mediator.Send(command,token);
+        var movieId = await _mediator.Send(command, token);
         return Ok(movieId);
     }
 
@@ -35,13 +35,21 @@ public class MoviesController : Controller
         return Ok(movies);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:guid}")] // Added route constraint to resolve ambiguity
     public async Task<IActionResult> GetById(
        Guid id,
        CancellationToken token)
     {
-        var movies = await _mediator.Send(new GetMovieByIdQuery(id,null), token);
+        var movies = await _mediator.Send(new GetMovieByIdQuery(id, null), token);
         return Ok(movies);
     }
 
+    [HttpGet("slug/{slug}")] // Changed route pattern to avoid conflict
+    public async Task<IActionResult> GetBySlug(
+      string slug,
+      CancellationToken token)
+    {
+        var movies = await _mediator.Send(new GetMovieBySlugQuery(slug, null), token);
+        return Ok(movies);
+    }
 }

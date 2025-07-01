@@ -37,9 +37,9 @@ namespace Movies.Api.Cqrs.Application.Services
            return await _movieQueryRepository.GetByIdAsync(query.Id, query.UserId, token);
         }
 
-        public Task<Movie?> GetBySlugAsync(GetMovieBySlugQuery query, CancellationToken token = default)
+        public async Task<Movie?> GetBySlugAsync(GetMovieBySlugQuery query, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            return await _movieQueryRepository.GetBySlugAsync(query.Slug, query.UserId, token);
         }
     }
 }
