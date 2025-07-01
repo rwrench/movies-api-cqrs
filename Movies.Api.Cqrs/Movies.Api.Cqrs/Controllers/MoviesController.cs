@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Api.Cqrs.Application.Commands;
+using Movies.Api.Cqrs.Application.Queries;
 
 namespace Movies.Api.Cqrs.Controllers;
 
@@ -22,6 +23,14 @@ public class MoviesController : Controller
     {
         var movieId = await _mediator.Send(command,token);
         return Ok(movieId);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll(
+        CancellationToken token)
+    {
+        var movies = await _mediator.Send(new GetAllMoviesQuery(), token);
+        return Ok(movies);
     }
 
 }

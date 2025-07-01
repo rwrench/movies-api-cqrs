@@ -1,6 +1,7 @@
 ﻿using MediatR;
+using Movies.Api.Cqrs.Application.Commands;
 using Movies.Api.Cqrs.Application.Repositories;
-using Movies.CQRS.Commands;
+
 
 namespace Movies.Api.Cqrs.Application.Handlers
 {

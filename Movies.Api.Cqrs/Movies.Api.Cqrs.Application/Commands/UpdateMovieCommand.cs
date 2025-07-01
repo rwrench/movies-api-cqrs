@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Movies.CQRS.Commands;
+namespace Movies.Api.Cqrs.Application.Commands;
 
 public record UpdateMovieCommand(
     Guid Id,

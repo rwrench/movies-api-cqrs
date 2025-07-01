@@ -16,11 +16,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(MovieMappingProfile).Assembly);
+
 // Register MediatR 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly));
 builder.Services.AddScoped<IMovieCommandRepository, MovieCommandRepository>();
-
+builder.Services.AddScoped<IMovieQueryRepository, MovieQueryRepository>();
 
 var app = builder.Build();
 
