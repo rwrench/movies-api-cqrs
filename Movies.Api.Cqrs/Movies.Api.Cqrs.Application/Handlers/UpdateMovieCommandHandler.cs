@@ -1,32 +1,26 @@
 ﻿using MediatR;
 using Movies.Api.Cqrs.Application.Commands;
 using Movies.Api.Cqrs.Application.Repositories;
-
+using Movies.Api.Cqrs.Application.Services;
 
 namespace Movies.Api.Cqrs.Application.Handlers
 {
-    public class UpdateMovieCommandHandler : IRequestHandler<UpdateMovieCommand, bool>
+    public class UpdateMovieCommandHandler : 
+        IRequestHandler<UpdateMovieCommand, bool>
     {
-        private readonly IMovieCommandRepository _repository;
+        readonly IMovieCommandService _service;
 
-        public UpdateMovieCommandHandler(IMovieCommandRepository repository)
+        public UpdateMovieCommandHandler(IMovieCommandService service)
         {
-            _repository = repository;
+            _service = service;
+
         }
 
         public async Task<bool> Handle(
-            UpdateMovieCommand request,
+            UpdateMovieCommand command,
             CancellationToken cancellationToken)
         {
-
-            var movie = await _repository.GetByIdAsync(request.Id);
-            if (movie is null) return false;
-
-            movie.Title = request.Title;
-            movie.YearOfRelease = request.YearOfRelease;
-            movie.Genres = request.Genres;
-
-            return await _repository.UpdateAsync(movie);
+            return await _service.UpdateAsync(command, cancellationToken);
         }
     }
 }

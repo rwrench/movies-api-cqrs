@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Movies.Api.Cqrs.Application.Extensions;
 using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Repositories;
 
@@ -13,14 +14,19 @@ namespace Movies.Api.Cqrs.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Guid> CreateAsync(Movie movie)
+        public async Task<Guid> CreateAsync(
+            Movie movie, 
+            CancellationToken token)
         {
             _context.Movies.Add(movie);
             await _context.SaveChangesAsync();
             return movie.Id;
         }
 
-        public async Task<bool> DeleteAsync(Guid id, Guid? userId = null)
+        public async Task<bool> DeleteAsync(
+            Guid id, 
+            Guid? userId = null,
+            CancellationToken token = default)
         {
             var movie = await _context.Movies.Where(m => m.Id == id &&
                 (userId == null || m.UserId == userId))
@@ -36,14 +42,35 @@ namespace Movies.Api.Cqrs.Infrastructure.Repositories
             return true;
         }
 
-        public Task<Movie?> GetByIdAsync(Guid id, Guid? userId = null)
+        public Task<Movie?> GetByIdAsync(
+            Guid id, 
+            Guid? userId = null,
+            CancellationToken token = default)
         {
             return _context.Movies.Where(m => m.Id == id &&
                 (userId == null || m.UserId == userId))
                 .FirstOrDefaultAsync();
         }
 
-        public Task<bool> UpdateAsync(Movie movie)
+        public Task<Movie?> GetBySlugAsync(
+            string slug, 
+            Guid? userId = null,
+            CancellationToken token = default)
+        {
+            var data = slug.ParseTitleAndYear();
+            if (data == null)
+                return Task.FromResult<Movie?>(null);
+
+            var query = _context.Movies.Where(m =>
+                m.Title == data.Value.Title &&
+                m.YearOfRelease == data.Value.YearOfRelease &&
+                (userId == null || m.UserId == userId)
+            );
+
+            return query.FirstOrDefaultAsync(token);
+        }
+
+        public Task<bool> UpdateAsync(Movie movie, CancellationToken token)
         {
            _context.Movies.Update(movie);
             return _context.SaveChangesAsync()

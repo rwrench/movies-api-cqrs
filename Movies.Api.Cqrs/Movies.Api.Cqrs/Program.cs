@@ -26,6 +26,7 @@ builder.Services.AddScoped<IMovieCommandRepository, MovieCommandRepository>();
 builder.Services.AddScoped<IMovieQueryRepository, MovieQueryRepository>();
 builder.Services.AddValidatorsFromAssemblyContaining<GetAllMoviesOptionsValidator>();
 builder.Services.AddScoped<IMovieQueryService, MovieQueryService>();
+builder.Services.AddScoped<IMovieCommandService, MovieCommandService>();
 
 var app = builder.Build();
 

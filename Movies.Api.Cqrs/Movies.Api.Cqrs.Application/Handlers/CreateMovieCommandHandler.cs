@@ -1,30 +1,23 @@
 ﻿using MediatR;
 using Movies.Api.Cqrs.Application.Commands;
-using Movies.Api.Cqrs.Application.Models;
-using Movies.Api.Cqrs.Application.Repositories;
+using Movies.Api.Cqrs.Application.Services;
 
 namespace Movies.Api.Cqrs.Application.Handlers;
 
 public class CreateMovieCommandHandler : IRequestHandler<CreateMovieCommand, Guid>
 {
-    private readonly IMovieCommandRepository _movieRepository;
+    private readonly IMovieCommandService _movieCommandService;
 
-    public CreateMovieCommandHandler(IMovieCommandRepository movieRepository)
+    public CreateMovieCommandHandler(IMovieCommandService movieCommandService)
     {
-        _movieRepository = movieRepository;
+        _movieCommandService = movieCommandService;
     }
 
-    public async Task<Guid> Handle(CreateMovieCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(
+        CreateMovieCommand command, 
+        CancellationToken token)
     {
-        var movie = new Movie
-        {
-            Id = Guid.NewGuid(),
-            Title = request.Title,
-            YearOfRelease = request.YearOfRelease,
-            Genres = request.Genres
-        };
-
-        await _movieRepository.CreateAsync(movie);
-        return movie.Id;
+       return await _movieCommandService.CreateAsync(command, token);
+        
     }
 }
