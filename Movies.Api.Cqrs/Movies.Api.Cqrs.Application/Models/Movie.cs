@@ -8,10 +8,6 @@ namespace Movies.Api.Cqrs.Application.Models
     {
         public required Guid Id { get; init; }
         public required string Title { get; set; }
-
-        public float? Rating { get; set; }
-
-        public int? UserRating { get; set; }
         public string Slug => GenerateSlug();
 
         public required int YearOfRelease { get; set; }
