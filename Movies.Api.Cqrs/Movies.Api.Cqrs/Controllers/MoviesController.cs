@@ -70,6 +70,15 @@ public class MoviesController : Controller
         var movies = await _mediator.Send(new GetMovieBySlugQuery(slug, null), token);
         return Ok(movies);
     }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(
+     Guid id,
+     CancellationToken token)
+    {
+        var movies = await _mediator.Send(new DeleteMovieCommand(id, null), token); 
+        return Ok(movies);
+    }
 }
 
 
