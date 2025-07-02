@@ -26,10 +26,13 @@ builder.Services.AddMediatR(cfg =>
 builder.Services.AddScoped<IMovieCommandRepository, MovieCommandRepository>();
 builder.Services.AddScoped<IMovieQueryRepository, MovieQueryRepository>();
 builder.Services.AddScoped<IRatingsCommandRepository, RatingsCommandRepository>();
+builder.Services.AddScoped<IRatingsQueryRepository, RatingsQueryRepository>();
 builder.Services.AddValidatorsFromAssemblyContaining<GetAllMoviesOptionsValidator>();
 builder.Services.AddScoped<IMovieQueryService, MovieQueryService>();
 builder.Services.AddScoped<IMovieCommandService, MovieCommandService>();
 builder.Services.AddScoped<IRatingsCommandService, RatingsMovieCommandService>();
+builder.Services.AddScoped<IRatingsQueryService, RatingsQueryService>();
+
 
 builder.Services.AddCors(options =>
 {
