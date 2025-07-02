@@ -1,0 +1,41 @@
+﻿@page "/movies"
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using global::Movies.Api.Cqrs.Application.Models
+@inject HttpClient Http
+
+<PageTitle>Movies</PageTitle>
+
+<h1>Movies</h1>
+
+<TelerikGrid Data="@movies" Pageable="true" Sortable="true" Groupable="true" Height="400px">
+    <GridColumns>
+        <GridColumn Field="Title" Title="Title" />
+        <GridColumn Field="YearOfRelease" Title="Year" />
+        <GridColumn Title="Genres">
+            <Template Context="movieObj">
+                @if (movieObj is Movie movie)
+                {
+                    <GenresDisplay Genres="@movie.Genres" />
+                }
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</TelerikGrid>
+
+@code {
+    private List<Movie> movies = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            movies = await Http.GetFromJsonAsync<List<Movie>>("https://localhost:7026/api/Movies")
+                ?? new List<Movie>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching movies: {ex.Message}");
+        }
+    }
+}

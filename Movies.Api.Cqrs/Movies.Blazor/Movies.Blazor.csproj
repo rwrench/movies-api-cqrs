@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.17" PrivateAssets="all" />
+    <PackageReference Include="Telerik.UI.for.Blazor" Version="9.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Movies.Api.Cqrs.Application\Movies.Api.Cqrs.Application.csproj" />
+    <ProjectReference Include="..\Movies.Api.Cqrs.Infrastructure\Movies.Api.Cqrs.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
