@@ -1,0 +1,36 @@
+﻿@page "/ratings"
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using global::Movies.Api.Cqrs.Application.Dto
+@using global::Movies.Api.Cqrs.Application.Models
+@inject HttpClient Http
+
+<PageTitle>Ratings</PageTitle>
+
+<h1>Ratings</h1>
+
+<TelerikGrid Data="@ratings" Pageable="true" Sortable="true" Groupable="true" Height="400px">
+    <GridColumns>
+        <GridColumn Field="MovieName" Title="Title" />
+        <GridColumn Field="Rating" Title="Rating" />
+        <GridColumn Field="DateUpdated" Title="Date Updated" />
+    </GridColumns>
+</TelerikGrid>
+
+@code {
+    private List<MovieRatingWithNameDto> ratings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            ratings = await Http.GetFromJsonAsync<List<MovieRatingWithNameDto>>("https://localhost:7026/api/Ratings")
+                ?? new List<MovieRatingWithNameDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching movies: {ex.Message}");
+        }
+    }
+}

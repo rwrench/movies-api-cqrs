@@ -68,8 +68,6 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
 
                     b.HasIndex("MovieId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Ratings");
                 });
 
@@ -101,13 +99,8 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
                     b.HasOne("Movies.Api.Cqrs.Application.Models.Movie", null)
                         .WithMany()
                         .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.HasOne("Movies.Api.Cqrs.Application.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
                 });
 #pragma warning restore 612, 618
         }

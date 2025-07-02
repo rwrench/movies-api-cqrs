@@ -6,25 +6,22 @@ using Movies.Api.Cqrs.Application.Services;
 
 namespace Movies.Api.Cqrs.Application.Handlers
 {
-    public class GetAllRatingsQueryHandler : IRequestHandler<GetAllRatingsQuery,List<RatingsDto>>
+    public class GetAllRatingsQueryHandler : 
+        IRequestHandler<GetAllRatingsQuery,IEnumerable<MovieRatingWithNameDto>>
     {
         private readonly IRatingsQueryService _ratingsQueryService;
-        private readonly IMapper _mapper;
 
         public GetAllRatingsQueryHandler(
-            IRatingsQueryService ratingsQueryService,
-            IMapper mapper)
+            IRatingsQueryService ratingsQueryService)
         {
            _ratingsQueryService = ratingsQueryService;
-            _mapper = mapper;
         }
 
-        public async Task<List<RatingsDto>> Handle(
+        public async Task<IEnumerable<MovieRatingWithNameDto>> Handle(
             GetAllRatingsQuery request, 
             CancellationToken cancellationToken)
         {
-            var ratings = await _ratingsQueryService.GetAllAsync(cancellationToken);
-            return _mapper.Map<List<RatingsDto>>(ratings);
+            return await _ratingsQueryService.GetAllAsync(cancellationToken);
         }
 
     

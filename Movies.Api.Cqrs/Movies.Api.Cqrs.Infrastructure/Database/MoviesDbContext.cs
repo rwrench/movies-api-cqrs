@@ -21,13 +21,8 @@ public class MoviesDbContext : DbContext
             .HasOne<Movie>()
             .WithMany()
             .HasForeignKey(r => r.MovieId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
-        // User 1 - * MovieRating (optional)
-        modelBuilder.Entity<MovieRating>()
-            .HasOne<User>()
-            .WithMany()
-            .HasForeignKey(r => r.UserId)
-            .OnDelete(DeleteBehavior.SetNull);
+     
     }
 }

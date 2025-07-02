@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Movies.Api.Cqrs.Infrastructure.Migrations
 {
     [DbContext(typeof(MoviesDbContext))]
-    [Migration("20250701134546_AddRatingsTable")]
-    partial class AddRatingsTable
+    [Migration("20250702201335_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,16 +26,13 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
 
             modelBuilder.Entity("Movies.Api.Cqrs.Application.Models.Movie", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("MovieId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.PrimitiveCollection<string>("Genres")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("Rating")
-                        .HasColumnType("real");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -44,13 +41,10 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("UserRating")
-                        .HasColumnType("int");
-
                     b.Property<int>("YearOfRelease")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("MovieId");
 
                     b.ToTable("Movies");
                 });
@@ -61,20 +55,55 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("DateUpdated")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("MovieId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Rating")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<float>("Rating")
+                        .HasColumnType("real");
 
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MovieId");
+
                     b.ToTable("Ratings");
+                });
+
+            modelBuilder.Entity("Movies.Api.Cqrs.Application.Models.User", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Movies.Api.Cqrs.Application.Models.MovieRating", b =>
+                {
+                    b.HasOne("Movies.Api.Cqrs.Application.Models.Movie", null)
+                        .WithMany()
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

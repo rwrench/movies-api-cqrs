@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Movies.Api.Cqrs.Application\Movies.Api.Cqrs.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>
