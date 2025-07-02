@@ -16,16 +16,12 @@ public class RatingsController : Controller
         _mediator = mediator;
     }
 
-    [HttpPut("{movioId:guid}")]
+    [HttpPut]
     public async Task<IActionResult> RateMovie(
-         [FromBody] RateMovieDto dto,
+        [FromQuery] RateMovieCommand command,
          CancellationToken token)
     {
-        var command = new RateMovieCommand (
-            dto.MovieId,
-            dto.Rating,
-            dto.UserId
-        );
+       
        var result = await _mediator.Send(command, token);
        return result
             ? Ok()

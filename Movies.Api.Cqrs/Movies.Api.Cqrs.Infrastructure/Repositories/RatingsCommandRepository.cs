@@ -4,7 +4,7 @@ using Movies.Api.Cqrs.Application.Repositories;
 
 namespace Movies.Api.Cqrs.Infrastructure.Repositories;
 
-internal class RatingsCommandRepository : IRatingsCommandRepository
+public class RatingsCommandRepository : IRatingsCommandRepository
 {
     MoviesDbContext _context;
 

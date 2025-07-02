@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Movies.Api.Cqrs.Application;
+using Movies.Api.Cqrs.Application.Commands;
 using Movies.Api.Cqrs.Application.Repositories;
 using Movies.Api.Cqrs.Application.Services;
 using Movies.Api.Cqrs.Application.Validators;
@@ -24,9 +25,12 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly));
 builder.Services.AddScoped<IMovieCommandRepository, MovieCommandRepository>();
 builder.Services.AddScoped<IMovieQueryRepository, MovieQueryRepository>();
+builder.Services.AddScoped<IRatingsCommandRepository, RatingsCommandRepository>();
 builder.Services.AddValidatorsFromAssemblyContaining<GetAllMoviesOptionsValidator>();
 builder.Services.AddScoped<IMovieQueryService, MovieQueryService>();
 builder.Services.AddScoped<IMovieCommandService, MovieCommandService>();
+builder.Services.AddScoped<IRatingsCommandService, RatingsMovieCommandService>();
+
 
 var app = builder.Build();
 
