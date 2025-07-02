@@ -20,7 +20,7 @@ namespace Movies.Api.Cqrs.Infrastructure.Repositories
         {
             _context.Movies.Add(movie);
             await _context.SaveChangesAsync();
-            return movie.Id;
+            return movie.MovieId;
         }
 
         public async Task<bool> DeleteAsync(
@@ -28,7 +28,7 @@ namespace Movies.Api.Cqrs.Infrastructure.Repositories
             Guid? userId = null,
             CancellationToken token = default)
         {
-            var movie = await _context.Movies.Where(m => m.Id == id &&
+            var movie = await _context.Movies.Where(m => m.MovieId == id &&
                 (userId == null || m.UserId == userId))
                 .FirstOrDefaultAsync();
 

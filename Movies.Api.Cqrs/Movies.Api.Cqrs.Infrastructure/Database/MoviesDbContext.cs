@@ -10,8 +10,24 @@ public class MoviesDbContext : DbContext
     }
 
     public DbSet<Movie> Movies { get; set; }
-
     public DbSet<MovieRating> Ratings { get; set; }
+    public DbSet<User> Users { get; set; } // Add Users DbSet
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        // Movie 1 - * MovieRating
+        modelBuilder.Entity<MovieRating>()
+            .HasOne<Movie>()
+            .WithMany()
+            .HasForeignKey(r => r.MovieId)
+            .OnDelete(DeleteBehavior.Cascade);
 
+        // User 1 - * MovieRating (optional)
+        modelBuilder.Entity<MovieRating>()
+            .HasOne<User>()
+            .WithMany()
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.SetNull);
+    }
 }

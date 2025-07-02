@@ -56,7 +56,7 @@ namespace Movies.Api.Cqrs.Infrastructure.Repositories
             CancellationToken cancellationToken = default)
         {
             return await _context.Movies
-                .Where(m => m.Id == id && (userId == null || m.UserId == userId))
+                .Where(m => m.MovieId == id && (userId == null || m.UserId == userId))
                 .FirstOrDefaultAsync(cancellationToken);
 
         }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Movies.Api.Cqrs.Infrastructure.Migrations
 {
     [DbContext(typeof(MoviesDbContext))]
-    partial class MoviesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250702123416_AddUserTableAndFixUserIdType")]
+    partial class AddUserTableAndFixUserIdType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,10 +69,6 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MovieId");
-
-                    b.HasIndex("UserId");
-
                     b.ToTable("Ratings");
                 });
 
@@ -94,20 +93,6 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Movies.Api.Cqrs.Application.Models.MovieRating", b =>
-                {
-                    b.HasOne("Movies.Api.Cqrs.Application.Models.Movie", null)
-                        .WithMany()
-                        .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Api.Cqrs.Application.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
                 });
 #pragma warning restore 612, 618
         }

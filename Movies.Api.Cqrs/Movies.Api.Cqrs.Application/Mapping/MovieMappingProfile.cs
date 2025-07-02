@@ -10,7 +10,7 @@ public class MovieMappingProfile : Profile
         CreateMap<Movie, MovieDto>();
 
         CreateMap<CreateMovieCommand, Movie>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(_ => Guid.NewGuid()));
+            .ForMember(dest => dest.MovieId, opt => opt.MapFrom(_ => Guid.NewGuid()));
 
         CreateMap<UpdateMovieCommand, Movie>();
     }

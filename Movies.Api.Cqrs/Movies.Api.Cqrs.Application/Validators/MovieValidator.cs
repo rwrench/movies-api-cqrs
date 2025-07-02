@@ -10,7 +10,7 @@ public class MovieValidator : AbstractValidator<Movie>
     public MovieValidator(IMovieQueryRepository movieRepo)
     {
         _movieRepo = movieRepo;
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.MovieId).NotEmpty();
         RuleFor(x => x.Genres).NotEmpty();
         RuleFor(x => x.Title).NotEmpty()
             .WithMessage("Title is required.");
@@ -31,7 +31,7 @@ public class MovieValidator : AbstractValidator<Movie>
         var existingMovie = await _movieRepo.GetBySlugAsync(slug);
         if (existingMovie is not null)
         {
-            return existingMovie.Id == movie.Id;
+            return existingMovie.MovieId == movie.MovieId;
         }
         return existingMovie is null;
     }

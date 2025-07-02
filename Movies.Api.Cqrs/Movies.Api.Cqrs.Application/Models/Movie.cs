@@ -6,7 +6,7 @@ namespace Movies.Api.Cqrs.Application.Models
 {
     public partial class Movie
     {
-        public required Guid Id { get; init; }
+        public required Guid MovieId { get; init; }
         public required string Title { get; set; }
         public string Slug => GenerateSlug();
 
