@@ -14,10 +14,12 @@ namespace Movies.Api.Cqrs.Controllers;
 public class MoviesController : Controller
 {
     readonly IMediator _mediator;
+    readonly ILogger<MoviesController> _logger;
 
-    public MoviesController(IMediator mediator)
+    public MoviesController(IMediator mediator, ILogger<MoviesController> logger)
     {
         _mediator = mediator;
+        _logger = logger;
     }
 
     [HttpPost]
@@ -25,6 +27,7 @@ public class MoviesController : Controller
         CreateMovieCommand command,
         CancellationToken token)
     {
+        _logger.LogInformation("Create movie called with title: {Title}", command.Title);
         var movieId = await _mediator.Send(command, token);
         return Ok(movieId);
     }
@@ -35,15 +38,58 @@ public class MoviesController : Controller
         [FromBody] UpdateMovieDto dto,
         CancellationToken token)
     {
-        var command = new UpdateMovieCommand(
-            id,
-            dto.Title!,
-            dto.YearOfRelease,
-            dto.Genres!,
-            dto.UserId
-        );
-        var result = await _mediator.Send(command, token);
-        return Ok(result);
+        _logger.LogInformation("Update movie called with ID: {Id}, Title: {Title}", id, dto?.Title);
+        
+        // Add debugging
+        Console.WriteLine($"UPDATE ENDPOINT HIT - ID: {id}");
+        
+        if (dto == null)
+        {
+            _logger.LogWarning("UpdateMovieDto is null");
+            return BadRequest("Invalid request body");
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.Title))
+        {
+            _logger.LogWarning("Title is null or empty");
+            return BadRequest("Title is required");
+        }
+
+        if (dto.Genres == null)
+        {
+            _logger.LogWarning("Genres is null, setting to empty list");
+            dto = dto with { Genres = new List<string>() };
+        }
+
+        try
+        {
+            var command = new UpdateMovieCommand(
+                id,
+                dto.Title,
+                dto.YearOfRelease,
+                dto.Genres,
+                dto.UserId
+            );
+            
+            _logger.LogInformation("Sending UpdateMovieCommand to mediator");
+            var result = await _mediator.Send(command, token);
+            
+            _logger.LogInformation("Update result: {Result}", result);
+            
+            if (result)
+            {
+                return Ok(new { success = true, message = "Movie updated successfully" });
+            }
+            else
+            {
+                return NotFound(new { success = false, message = "Movie not found or update failed" });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating movie with ID: {Id}", id);
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
     }
 
     [HttpGet]
@@ -51,6 +97,7 @@ public class MoviesController : Controller
         [FromQuery] GetAllMoviesOptions options,
         CancellationToken token)
     {
+        _logger.LogInformation("GetAll movies called");
         var movies = await _mediator.Send(new GetAllMoviesQuery(options), token);
         return Ok(movies);
     }
@@ -60,8 +107,15 @@ public class MoviesController : Controller
        Guid id,
        CancellationToken token)
     {
-        var movies = await _mediator.Send(new GetMovieByIdQuery(id, null), token);
-        return Ok(movies);
+        _logger.LogInformation("GetById called with ID: {Id}", id);
+        var movie = await _mediator.Send(new GetMovieByIdQuery(id, null), token);
+        
+        if (movie == null)
+        {
+            return NotFound(new { message = "Movie not found" });
+        }
+        
+        return Ok(movie);
     }
 
     [HttpGet("slug/{slug}")]
@@ -69,8 +123,15 @@ public class MoviesController : Controller
       string slug,
       CancellationToken token)
     {
-        var movies = await _mediator.Send(new GetMovieBySlugQuery(slug, null), token);
-        return Ok(movies);
+        _logger.LogInformation("GetBySlug called with slug: {Slug}", slug);
+        var movie = await _mediator.Send(new GetMovieBySlugQuery(slug, null), token);
+        
+        if (movie == null)
+        {
+            return NotFound(new { message = "Movie not found" });
+        }
+        
+        return Ok(movie);
     }
 
     [HttpDelete("{id:guid}")]
@@ -78,8 +139,17 @@ public class MoviesController : Controller
      Guid id,
      CancellationToken token)
     {
-        var movies = await _mediator.Send(new DeleteMovieCommand(id, null), token); 
-        return Ok(movies);
+        _logger.LogInformation("Delete called with ID: {Id}", id);
+        var result = await _mediator.Send(new DeleteMovieCommand(id, null), token); 
+        
+        if (result)
+        {
+            return Ok(new { success = true, message = "Movie deleted successfully" });
+        }
+        else
+        {
+            return NotFound(new { success = false, message = "Movie not found" });
+        }
     }
 
     [HttpPost("import")]

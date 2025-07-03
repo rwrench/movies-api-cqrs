@@ -3,7 +3,7 @@
 namespace Movies.Api.Cqrs.Application.Commands;
 
 public record UpdateMovieCommand(
-    Guid Id,
+    Guid MovieId,
     string Title, 
     int YearOfRelease, 
     List<string> Genres,

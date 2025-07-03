@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Movies.Api.Cqrs.Application.Commands;
 
-public record DeleteMovieCommand(Guid Id, Guid? UserId) : IRequest<bool>;
+public record DeleteMovieCommand(Guid MovieId, Guid? UserId) : IRequest<bool>;

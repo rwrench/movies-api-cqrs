@@ -12,6 +12,7 @@ public class MovieMappingProfile : Profile
         CreateMap<CreateMovieCommand, Movie>()
             .ForMember(dest => dest.MovieId, opt => opt.MapFrom(_ => Guid.NewGuid()));
 
+        // UpdateMovieCommand now uses MovieId directly, so mapping is straightforward
         CreateMap<UpdateMovieCommand, Movie>();
     }
 }

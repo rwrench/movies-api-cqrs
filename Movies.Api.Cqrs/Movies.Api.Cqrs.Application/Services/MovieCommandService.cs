@@ -27,21 +27,29 @@ namespace Movies.Api.Cqrs.Application.Services
             CancellationToken token = default)
         {
             var movie = _mapper.Map<Movie>(command);
-            await _validator.ValidateAndThrowAsync(movie, token); // Remove explicit type argument
+            await _validator.ValidateAndThrowAsync(movie, token);
             return await _movieCommandRepository.CreateAsync(movie, token);
         }
 
         public async Task<bool> DeleteAsync(DeleteMovieCommand command, 
             CancellationToken token = default)
         {
-            return await _movieCommandRepository.DeleteAsync(command.Id, command.UserId, token);
+            return await _movieCommandRepository.DeleteAsync(command.MovieId, command.UserId, token);
         }
 
         public async Task<bool> UpdateAsync(UpdateMovieCommand command, 
             CancellationToken token = default)
         {
-            var movie = _mapper.Map<Movie>(command);
-            return await _movieCommandRepository.UpdateAsync(movie, token);
+            Console.WriteLine($"MovieCommandService.UpdateAsync called with MovieId: {command.MovieId}");
+            
+            // Don't use AutoMapper for updates - pass the command data directly to repository
+            // This avoids Entity Framework tracking issues and validation problems
+            return await _movieCommandRepository.UpdateByIdAsync(
+                command.MovieId, 
+                command.Title, 
+                command.YearOfRelease, 
+                command.Genres, 
+                token);
         }
     }
 }
