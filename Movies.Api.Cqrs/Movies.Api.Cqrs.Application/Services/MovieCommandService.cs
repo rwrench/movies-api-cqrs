@@ -9,16 +9,19 @@ namespace Movies.Api.Cqrs.Application.Services
     public class MovieCommandService : IMovieCommandService
     {
         readonly IMovieCommandRepository _movieCommandRepository;
-        readonly IValidator<Movie> _validator; 
+        readonly IValidator<Movie> _movieValidator; 
+        readonly IValidator<UpdateMovieCommand> _updateValidator;
         readonly IMapper _mapper;
 
         public MovieCommandService(
             IMovieCommandRepository movieCommandRepository,
-            IValidator<Movie> validator, 
+            IValidator<Movie> movieValidator, 
+            IValidator<UpdateMovieCommand> updateValidator,
             IMapper mapper)
         {
             _movieCommandRepository = movieCommandRepository;
-            _validator = validator; 
+            _movieValidator = movieValidator; 
+            _updateValidator = updateValidator;
             _mapper = mapper;
         }
 
@@ -27,7 +30,7 @@ namespace Movies.Api.Cqrs.Application.Services
             CancellationToken token = default)
         {
             var movie = _mapper.Map<Movie>(command);
-            await _validator.ValidateAndThrowAsync(movie, token);
+            await _movieValidator.ValidateAndThrowAsync(movie, token);
             return await _movieCommandRepository.CreateAsync(movie, token);
         }
 
@@ -42,8 +45,11 @@ namespace Movies.Api.Cqrs.Application.Services
         {
             Console.WriteLine($"MovieCommandService.UpdateAsync called with MovieId: {command.MovieId}");
             
-            // Don't use AutoMapper for updates - pass the command data directly to repository
-            // This avoids Entity Framework tracking issues and validation problems
+            // Validate the update command
+            await _updateValidator.ValidateAndThrowAsync(command, token);
+            
+            // Pass the command data directly to repository
+            // This avoids Entity Framework tracking issues while still validating input
             return await _movieCommandRepository.UpdateByIdAsync(
                 command.MovieId, 
                 command.Title, 
