@@ -1,16 +1,16 @@
 using FluentValidation;
 using Movies.Api.Cqrs.Application.Commands;
-using Movies.Api.Cqrs.Application.Repositories;
+using Microsoft.EntityFrameworkCore;
 
-namespace Movies.Api.Cqrs.Application.Validators;
+namespace Movies.Api.Cqrs.Infrastructure.Validators;
 
 public class UpdateMovieCommandValidator : AbstractValidator<UpdateMovieCommand>
 {
-    private readonly IMovieQueryRepository _movieQueryRepo;
+    private readonly MoviesDbContext _context;
 
-    public UpdateMovieCommandValidator(IMovieQueryRepository movieQueryRepo)
+    public UpdateMovieCommandValidator(MoviesDbContext context)
     {
-        _movieQueryRepo = movieQueryRepo;
+        _context = context;
 
         RuleFor(x => x.MovieId)
             .NotEmpty()
@@ -47,7 +47,8 @@ public class UpdateMovieCommandValidator : AbstractValidator<UpdateMovieCommand>
 
     private async Task<bool> MovieExists(Guid movieId, CancellationToken token)
     {
-        var movie = await _movieQueryRepo.GetByIdAsync(movieId);
-        return movie is not null;
+        var movie = await _context.Movies
+            .FirstOrDefaultAsync(m => m.MovieId == movieId, token);
+        return movie != null;
     }
 }

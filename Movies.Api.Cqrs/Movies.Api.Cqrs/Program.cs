@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Movies.Api.Cqrs.Application;
 using Movies.Api.Cqrs.Application.Commands;
-using Movies.Api.Cqrs.Application.Repositories;
+using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Services;
 using Movies.Api.Cqrs.Application.Validators;
-using Movies.Api.Cqrs.Infrastructure.Repositories;
+// Import Infrastructure services and validators
+using Movies.Api.Cqrs.Infrastructure.Services;
+using Movies.Api.Cqrs.Infrastructure.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,16 +25,21 @@ builder.Services.AddAutoMapper(typeof(MovieMappingProfile).Assembly);
 
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly));
-builder.Services.AddScoped<IMovieCommandRepository, MovieCommandRepository>();
-builder.Services.AddScoped<IMovieQueryRepository, MovieQueryRepository>();
-builder.Services.AddScoped<IRatingsCommandRepository, RatingsCommandRepository>();
-builder.Services.AddScoped<IRatingsQueryRepository, RatingsQueryRepository>();
-builder.Services.AddValidatorsFromAssemblyContaining<GetAllMoviesOptionsValidator>();
-builder.Services.AddScoped<IMovieQueryService, MovieQueryService>();
-builder.Services.AddScoped<IMovieCommandService, MovieCommandService>();
-builder.Services.AddScoped<IRatingsCommandService, RatingsMovieCommandService>();
-builder.Services.AddScoped<IRatingsQueryService, RatingsQueryService>();
 
+// REPOSITORY PATTERN REMOVED! 
+// Register Infrastructure services that use DbContext directly
+builder.Services.AddScoped<IMovieQueryService, Movies.Api.Cqrs.Infrastructure.Services.MovieQueryService>();
+builder.Services.AddScoped<IMovieCommandService, Movies.Api.Cqrs.Infrastructure.Services.MovieCommandService>();
+builder.Services.AddScoped<IRatingsCommandService, Movies.Api.Cqrs.Infrastructure.Services.RatingsCommandService>();
+builder.Services.AddScoped<IRatingsQueryService, Movies.Api.Cqrs.Infrastructure.Services.RatingsQueryService>();
+
+// Register Infrastructure validators that use DbContext directly
+builder.Services.AddScoped<IValidator<Movie>, Movies.Api.Cqrs.Infrastructure.Validators.MovieValidator>();
+builder.Services.AddScoped<IValidator<UpdateMovieCommand>, Movies.Api.Cqrs.Infrastructure.Validators.UpdateMovieCommandValidator>();
+builder.Services.AddScoped<IValidator<RateMovieCommand>, Movies.Api.Cqrs.Infrastructure.Validators.RateMovieCommandValidator>();
+
+// Register remaining Application validators (no DB access needed)
+builder.Services.AddValidatorsFromAssemblyContaining<GetAllMoviesOptionsValidator>();
 
 builder.Services.AddCors(options =>
 {

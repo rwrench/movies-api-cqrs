@@ -1,15 +1,17 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Movies.Api.Cqrs.Application.Models;
-using Movies.Api.Cqrs.Application.Repositories;
+using Microsoft.EntityFrameworkCore;
 
-namespace Movies.Api.Cqrs.Application.Validators;
+namespace Movies.Api.Cqrs.Infrastructure.Validators;
 
 public class MovieValidator : AbstractValidator<Movie>
 {
-    private readonly IMovieQueryRepository _movieRepo;
-    public MovieValidator(IMovieQueryRepository movieRepo)
+    private readonly MoviesDbContext _context;
+    
+    public MovieValidator(MoviesDbContext context)
     {
-        _movieRepo = movieRepo;
+        _context = context;
+        
         RuleFor(x => x.MovieId).NotEmpty();
         RuleFor(x => x.Genres).NotEmpty();
         RuleFor(x => x.Title).NotEmpty()
@@ -27,12 +29,13 @@ public class MovieValidator : AbstractValidator<Movie>
         string slug,
         CancellationToken token)
     {
-
-        var existingMovie = await _movieRepo.GetBySlugAsync(slug);
-        if (existingMovie is not null)
+        var existingMovie = await _context.Movies
+            .FirstOrDefaultAsync(m => m.Slug == slug, token);
+            
+        if (existingMovie != null)
         {
             return existingMovie.MovieId == movie.MovieId;
         }
-        return existingMovie is null;
+        return true;
     }
 }
