@@ -2,9 +2,11 @@
 @using Telerik.Blazor
 @using Telerik.Blazor.Components
 @using global::Movies.Api.Contracts.Dto
+@using global::Movies.Api.Contracts.Services
 @using global::Movies.Api.Cqrs.Application.Models
 @using Telerik.DataSource
 @inject HttpClient Http
+@inject IApiService apiService
 
 <PageTitle>Ratings</PageTitle>
 
@@ -85,8 +87,8 @@
     {
         try
         {
-            // Load ratings
-            ratings = await Http.GetFromJsonAsync<List<MovieRatingWithNameDto>>("https://localhost:7026/api/Ratings")
+            // Load ratings using configured endpoint
+            ratings = await Http.GetFromJsonAsync<List<MovieRatingWithNameDto>>(apiService.GetRatingsEndpoint())
                 ?? new List<MovieRatingWithNameDto>();
 
             SetStatusMessage($"Loaded {ratings.Count} ratings", false);
@@ -122,7 +124,7 @@
                 return;
             }
 
-            var searchUrl = $"https://localhost:7026/api/Movies/search?searchTerm={Uri.EscapeDataString(searchTerm)}&take=10";
+            var searchUrl = apiService.GetMovieSearchEndpoint(searchTerm, 10);
             Console.WriteLine($"Making API call to: {searchUrl}");
 
             var results = await Http.GetFromJsonAsync<List<MovieDropdownDto>>(searchUrl) ?? new List<MovieDropdownDto>();
@@ -197,10 +199,11 @@
                     DateUpdated = DateTime.UtcNow
                 };
 
-                Console.WriteLine($"Sending update request to: https://localhost:7026/api/Ratings/{updatedRating.Id}");
+                var updateUrl = apiService.GetRatingByIdEndpoint(updatedRating.Id);
+                Console.WriteLine($"Sending update request to: {updateUrl}");
                 Console.WriteLine($"Update data: MovieId: {updateDto.MovieId}, Rating: {updateDto.Rating}");
 
-                var response = await Http.PutAsJsonAsync($"https://localhost:7026/api/Ratings/{updatedRating.Id}", updateDto);
+                var response = await Http.PutAsJsonAsync(updateUrl, updateDto);
 
                 Console.WriteLine($"Response status: {response.StatusCode}");
 
@@ -241,7 +244,8 @@
         {
             try
             {
-                var response = await Http.DeleteAsync($"https://localhost:7026/api/Ratings/{ratingToDelete.Id}");
+                var deleteUrl = apiService.GetRatingByIdEndpoint(ratingToDelete.Id);
+                var response = await Http.DeleteAsync(deleteUrl);
                 if (response.IsSuccessStatusCode)
                 {
                     ratings.Remove(ratingToDelete);
@@ -267,7 +271,7 @@
     {
         try
         {
-            ratings = await Http.GetFromJsonAsync<List<MovieRatingWithNameDto>>("https://localhost:7026/api/Ratings")
+            ratings = await Http.GetFromJsonAsync<List<MovieRatingWithNameDto>>(apiService.GetRatingsEndpoint())
                 ?? new List<MovieRatingWithNameDto>();
             Console.WriteLine($"Refreshed data: {ratings.Count} ratings loaded");
         }
@@ -291,6 +295,7 @@
         statusMessage = "";
         StateHasChanged();
     }
+    
     private async Task OnCreateHandler(GridCommandEventArgs e)
     {
         Console.WriteLine("Create handler called");
@@ -319,7 +324,7 @@
 
                 Console.WriteLine($"Creating rating for MovieId: {ratingToCreate.MovieId}, Rating: {ratingToCreate.Rating}");
 
-                var response = await Http.PostAsJsonAsync("https://localhost:7026/api/Ratings", ratingToCreate);
+                var response = await Http.PostAsJsonAsync(apiService.GetRatingsEndpoint(), ratingToCreate);
 
                 Console.WriteLine($"Response status: {response.StatusCode}");
 

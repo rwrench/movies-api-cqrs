@@ -1,8 +1,10 @@
 ﻿@page "/movies"
 @using Telerik.Blazor
 @using Telerik.Blazor.Components
+@using global::Movies.Api.Contracts.Services
 @using global::Movies.Api.Cqrs.Application.Models
 @inject HttpClient Http
+@inject IApiService apiService
 
 <PageTitle>Movies</PageTitle>
 
@@ -65,7 +67,7 @@
     {
         try
         {
-            movies = await Http.GetFromJsonAsync<List<Movie>>("https://localhost:7026/api/Movies")
+            movies = await Http.GetFromJsonAsync<List<Movie>>(apiService.GetMoviesEndpoint())
                 ?? new List<Movie>();
             SetStatusMessage($"Loaded {movies.Count} movies", false);
             
@@ -118,10 +120,11 @@
                     UserId = updatedMovie.UserId
                 };
 
-                Console.WriteLine($"Sending update request to: https://localhost:7026/api/Movies/{updatedMovie.MovieId}");
+                var updateUrl = apiService.GetMovieByIdEndpoint(updatedMovie.MovieId);
+                Console.WriteLine($"Sending update request to: {updateUrl}");
 
-                var response = await Http.PutAsJsonAsync($"https://localhost:7026/api/Movies/{updatedMovie.MovieId}", updateDto);
-                
+                var response = await Http.PutAsJsonAsync(updateUrl, updateDto);
+
                 Console.WriteLine($"Response status: {response.StatusCode}");
                 
                 if (response.IsSuccessStatusCode)
@@ -157,7 +160,8 @@
         {
             try
             {
-                var response = await Http.DeleteAsync($"https://localhost:7026/api/Movies/{movieToDelete.MovieId}");
+                var deleteUrl = apiService.GetMovieByIdEndpoint(movieToDelete.MovieId);
+                var response = await Http.DeleteAsync(deleteUrl);
                 if (response.IsSuccessStatusCode)
                 {
                     movies.Remove(movieToDelete);
@@ -195,7 +199,7 @@
                     Genres = newMovie.Genres ?? new List<string>()
                 };
                 
-                var response = await Http.PostAsJsonAsync("https://localhost:7026/api/Movies", movieToCreate);
+                var response = await Http.PostAsJsonAsync(apiService.GetMoviesEndpoint(), movieToCreate);
                 if (response.IsSuccessStatusCode)
                 {
                     await RefreshData();
@@ -221,7 +225,7 @@
     {
         try
         {
-            movies = await Http.GetFromJsonAsync<List<Movie>>("https://localhost:7026/api/Movies") ?? new List<Movie>();
+            movies = await Http.GetFromJsonAsync<List<Movie>>(apiService.GetMoviesEndpoint()) ?? new List<Movie>();
             Console.WriteLine($"Refreshed data: {movies.Count} movies loaded");
         }
         catch (Exception ex)
