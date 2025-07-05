@@ -6,6 +6,7 @@ using Movies.Api.Cqrs.Application;
 using Movies.Api.Cqrs.Application.Commands;
 using Movies.Api.Cqrs.Application.Services;
 using Movies.Api.Cqrs.Application.Validators;
+using Movies.Api.Cqrs.Endpoints;
 using Movies.Api.Cqrs.Infrastructure.Handlers;
 
 // Import Infrastructure services and validators
@@ -69,7 +70,10 @@ app.UseAuthorization();
 
 app.UseCors();
 
-app.MapControllers();
+// Map API endpoints
+app.MapMoviesEndpoints();
+app.MapRatingsEndpoints();
+
 
 using (var scope = app.Services.CreateScope())
 {
