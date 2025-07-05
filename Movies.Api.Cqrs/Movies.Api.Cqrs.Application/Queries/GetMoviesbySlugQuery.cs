@@ -1,7 +1,5 @@
-﻿
-
-using MediatR;
-using Movies.Api.Cqrs.Application.Dto;
+﻿using MediatR;
+using Movies.Api.Contracts.Dto;
 
 namespace Movies.Api.Cqrs.Application.Queries;
 

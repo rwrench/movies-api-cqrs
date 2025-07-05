@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
-using Movies.Api.Cqrs.Application.Dto;
+using Movies.Api.Contracts.Dto;
 using Movies.Api.Cqrs.Application.Queries;
 using Movies.Api.Cqrs.Application.Services;
 

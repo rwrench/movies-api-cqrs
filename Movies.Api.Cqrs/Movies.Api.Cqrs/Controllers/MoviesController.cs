@@ -1,12 +1,12 @@
 ﻿using CsvHelper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Movies.Api.Contracts.Dto;
 using Movies.Api.Cqrs.Application.Commands;
 using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Queries;
 using Movies.Api.Cqrs.Dto;
 using System.Globalization;
-using Movies.Api.Cqrs.Application.Dto;
 
 namespace Movies.Api.Cqrs.Controllers;
 

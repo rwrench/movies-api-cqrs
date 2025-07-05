@@ -1,4 +1,4 @@
-﻿namespace Movies.Api.Cqrs.Application.Dto
+﻿namespace Movies.Api.Contracts.Dto
 {
     public class MovieDto
     {

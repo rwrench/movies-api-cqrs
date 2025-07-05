@@ -1,7 +1,8 @@
-using Movies.Api.Cqrs.Application.Dto;
+
 using Movies.Api.Cqrs.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Movies.Api.Contracts.Dto;
 
 namespace Movies.Api.Cqrs.Infrastructure.Services;
 

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Api.Cqrs.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Blazor", "Movies.Blazor\Movies.Blazor.csproj", "{671984CD-8D4C-4AA5-ACAC-B26E7A2BA075}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Api.Contracts", "Movie.Contracts\Movies.Api.Contracts.csproj", "{675EFBB1-225E-455F-BCCD-DB315AE867BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{671984CD-8D4C-4AA5-ACAC-B26E7A2BA075}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{671984CD-8D4C-4AA5-ACAC-B26E7A2BA075}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{671984CD-8D4C-4AA5-ACAC-B26E7A2BA075}.Release|Any CPU.Build.0 = Release|Any CPU
+		{675EFBB1-225E-455F-BCCD-DB315AE867BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{675EFBB1-225E-455F-BCCD-DB315AE867BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{675EFBB1-225E-455F-BCCD-DB315AE867BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{675EFBB1-225E-455F-BCCD-DB315AE867BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

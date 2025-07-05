@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using MediatR;
-using Movies.Api.Cqrs.Application.Dto;
+using Movies.Api.Contracts.Dto;
 using Movies.Api.Cqrs.Application.Queries;
 using Movies.Api.Cqrs.Application.Services;
 
 namespace Movies.Api.Cqrs.Application.Handlers;
 
-public class GetAllMoviesQueryHandler : IRequestHandler<GetAllMoviesQuery, List<MovieDto>>
+public class GetAllMoviesQueryHandler : IRequestHandler<GetAllMoviesQuery, 
+    List<MovieDto>>
 {
     private readonly IMovieQueryService _movieQueryService;
     private readonly IMapper _mapper;
