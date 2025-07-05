@@ -12,8 +12,8 @@ using Movies.Api.Cqrs.Infrastructure.Database;
 namespace Movies.Api.Cqrs.Infrastructure.Migrations
 {
     [DbContext(typeof(MoviesDbContext))]
-    [Migration("20250702201335_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250705214716_AddMovieIndexes")]
+    partial class AddMovieIndexes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Movies.Api.Cqrs.Application.Models.Movie", b =>
+            modelBuilder.Entity("Movies.Api.Contracts.Models.Movie", b =>
                 {
                     b.Property<Guid>("MovieId")
                         .ValueGeneratedOnAdd()
@@ -37,7 +37,7 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -47,10 +47,22 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
 
                     b.HasKey("MovieId");
 
+                    b.HasIndex("Title")
+                        .HasDatabaseName("IX_Movies_Title");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Movies_UserId");
+
+                    b.HasIndex("YearOfRelease")
+                        .HasDatabaseName("IX_Movies_YearOfRelease");
+
+                    b.HasIndex("YearOfRelease", "Title")
+                        .HasDatabaseName("IX_Movies_Year_Title");
+
                     b.ToTable("Movies");
                 });
 
-            modelBuilder.Entity("Movies.Api.Cqrs.Application.Models.MovieRating", b =>
+            modelBuilder.Entity("Movies.Api.Contracts.Models.MovieRating", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -75,7 +87,7 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
                     b.ToTable("Ratings");
                 });
 
-            modelBuilder.Entity("Movies.Api.Cqrs.Application.Models.User", b =>
+            modelBuilder.Entity("Movies.Api.Contracts.Models.User", b =>
                 {
                     b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
@@ -98,9 +110,9 @@ namespace Movies.Api.Cqrs.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Movies.Api.Cqrs.Application.Models.MovieRating", b =>
+            modelBuilder.Entity("Movies.Api.Contracts.Models.MovieRating", b =>
                 {
-                    b.HasOne("Movies.Api.Cqrs.Application.Models.Movie", null)
+                    b.HasOne("Movies.Api.Contracts.Models.Movie", null)
                         .WithMany()
                         .HasForeignKey("MovieId")
                         .OnDelete(DeleteBehavior.NoAction)

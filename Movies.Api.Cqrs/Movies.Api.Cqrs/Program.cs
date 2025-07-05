@@ -12,6 +12,7 @@ using Movies.Api.Cqrs.Infrastructure.Handlers;
 // Import Infrastructure services and validators
 using Movies.Api.Cqrs.Infrastructure.Services;
 using Movies.Api.Cqrs.Infrastructure.Validators;
+using Movies.Api.Cqrs.Infrastructure.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 

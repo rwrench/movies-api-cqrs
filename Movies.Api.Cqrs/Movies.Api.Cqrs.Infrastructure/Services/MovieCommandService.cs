@@ -5,6 +5,7 @@ using Movies.Api.Cqrs.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Movies.Api.Contracts.Models;
+using Movies.Api.Cqrs.Infrastructure.Database;
 
 namespace Movies.Api.Cqrs.Infrastructure.Services
 {

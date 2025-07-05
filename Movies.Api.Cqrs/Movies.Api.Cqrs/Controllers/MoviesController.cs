@@ -7,6 +7,7 @@ using Movies.Api.Cqrs.Application.Commands;
 using Movies.Api.Cqrs.Application.Queries;
 using Movies.Api.Cqrs.Dto;
 using System.Globalization;
+using Movies.Api.Cqrs.Infrastructure.Database;
 
 namespace Movies.Api.Cqrs.Controllers;
 
