@@ -1,4 +1,4 @@
-﻿using Movies.Api.Cqrs.Application.Models;
+﻿using Movies.Api.Contracts.Models;
 using Movies.Api.Cqrs.Application.Queries;
 
 namespace Movies.Api.Cqrs.Application.Services;

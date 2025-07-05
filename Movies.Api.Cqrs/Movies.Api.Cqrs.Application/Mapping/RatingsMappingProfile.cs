@@ -1,6 +1,6 @@
-﻿using Movies.Api.Cqrs.Application.Models;
-using AutoMapper;
+﻿using AutoMapper;
 using Movies.Api.Contracts.Dto;
+using Movies.Api.Contracts.Models;
 
 namespace Movies.Api.Cqrs.Application.Mapping
 {

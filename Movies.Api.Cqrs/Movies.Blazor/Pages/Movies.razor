@@ -1,10 +1,9 @@
 ﻿@page "/movies"
 @using Telerik.Blazor
 @using Telerik.Blazor.Components
+@using global::Movies.Api.Contracts.Models
 @using global::Movies.Api.Contracts.Services
-@using global::Movies.Api.Cqrs.Application.Models
-@inject HttpClient Http
-@inject IApiService apiService
+@inject IMovieService MovieService
 
 <PageTitle>Movies</PageTitle>
 
@@ -65,174 +64,116 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadMoviesAsync();
+    }
+    async Task LoadMoviesAsync()
+    {
         try
         {
-            movies = await Http.GetFromJsonAsync<List<Movie>>(apiService.GetMoviesEndpoint())
-                ?? new List<Movie>();
+            movies = await MovieService.GetMoviesAsync();
             SetStatusMessage($"Loaded {movies.Count} movies", false);
-            
-            // Debug: Log the first few movie IDs
-            Console.WriteLine($"=== BLAZOR DEBUG: Loaded {movies.Count} movies ===");
-            foreach (var movie in movies.Take(5))
-            {
-                Console.WriteLine($"Movie ID: {movie.MovieId}, Title: {movie.Title}, Year: {movie.YearOfRelease}");
-            }
         }
         catch (Exception ex)
         {
-            SetStatusMessage($"Error fetching movies: {ex.Message}", true);
-            Console.WriteLine($"Error fetching movies: {ex.Message}");
+            SetStatusMessage($"Error loading movies: {ex.Message}", true);
         }
     }
 
     private Task OnEditHandler(GridCommandEventArgs e)
     {
-        Console.WriteLine("Edit handler called");
-        if (e.Item is Movie movie)
-        {
-            Console.WriteLine($"Editing movie: {movie.Title}");
-        }
         return Task.CompletedTask;
     }
 
     private Task OnCancelHandler(GridCommandEventArgs e)
     {
-        Console.WriteLine("Cancel handler called");
         ClearStatusMessage();
         return Task.CompletedTask;
     }
 
     private async Task OnUpdateHandler(GridCommandEventArgs e)
     {
-        Console.WriteLine("Update handler called");
-        
-        if (e.Item is Movie updatedMovie)
+        if (e.Item is not Movie updatedMovie) return;
+
+        try
         {
-            Console.WriteLine($"Attempting to update movie: {updatedMovie.Title}, Year: {updatedMovie.YearOfRelease}");
-            
-            try
+            var success = await MovieService.UpdateMovieAsync(updatedMovie);
+
+            if (success)
             {
-                var updateDto = new
-                {
-                    Title = updatedMovie.Title,
-                    YearOfRelease = updatedMovie.YearOfRelease,
-                    Genres = updatedMovie.Genres,
-                    UserId = updatedMovie.UserId
-                };
-
-                var updateUrl = apiService.GetMovieByIdEndpoint(updatedMovie.MovieId);
-                Console.WriteLine($"Sending update request to: {updateUrl}");
-
-                var response = await Http.PutAsJsonAsync(updateUrl, updateDto);
-
-                Console.WriteLine($"Response status: {response.StatusCode}");
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    SetStatusMessage($"Successfully updated movie: {updatedMovie.Title}", false);
-                    Console.WriteLine($"Updated movie: {updatedMovie.Title}");
-                    await RefreshData();
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    SetStatusMessage($"Failed to update movie: {response.StatusCode}", true);
-                    Console.WriteLine($"Failed to update movie: {response.StatusCode} - {errorContent}");
-                }
+                SetStatusMessage($"Successfully updated movie: {updatedMovie.Title}", false);
+                await LoadMoviesAsync(); // Refresh the grid data
             }
-            catch (Exception ex)
+            else
             {
-                SetStatusMessage($"Error updating movie: {ex.Message}", true);
-                Console.WriteLine($"Error updating movie: {ex.Message}");
+                SetStatusMessage("Failed to update movie", true);
             }
         }
-        else
+        catch (Exception ex)
         {
-            Console.WriteLine("e.Item is not a Movie object");
+            SetStatusMessage($"Error updating movie: {ex.Message}", true);
         }
     }
 
     private async Task OnDeleteHandler(GridCommandEventArgs e)
     {
-        Console.WriteLine("Delete handler called");
-        
-        if (e.Item is Movie movieToDelete)
+        if (e.Item is not Movie movieToDelete) return;
+
+        try
         {
-            try
+            var success = await MovieService.DeleteMovieAsync(movieToDelete.MovieId);
+
+            if (success)
             {
-                var deleteUrl = apiService.GetMovieByIdEndpoint(movieToDelete.MovieId);
-                var response = await Http.DeleteAsync(deleteUrl);
-                if (response.IsSuccessStatusCode)
-                {
-                    movies.Remove(movieToDelete);
-                    SetStatusMessage($"Successfully deleted movie: {movieToDelete.Title}", false);
-                    Console.WriteLine($"Deleted movie: {movieToDelete.Title}");
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    SetStatusMessage($"Failed to delete movie: {response.StatusCode}", true);
-                    Console.WriteLine($"Failed to delete movie: {response.StatusCode} - {errorContent}");
-                }
+                movies.Remove(movieToDelete);
+                SetStatusMessage($"Successfully deleted movie: {movieToDelete.Title}", false);
             }
-            catch (Exception ex)
+            else
             {
-                SetStatusMessage($"Error deleting movie: {ex.Message}", true);
-                Console.WriteLine($"Error deleting movie: {ex.Message}");
+                SetStatusMessage("Failed to delete movie", true);
             }
         }
+        catch (Exception ex)
+        {
+            SetStatusMessage($"Error deleting movie: {ex.Message}", true);
+        }
+
     }
 
     private async Task OnCreateHandler(GridCommandEventArgs e)
     {
-        Console.WriteLine("Create handler called");
-        
-        if (e.Item is Movie newMovie)
-        {
-            try
-            {
-                var movieToCreate = new Movie
-                {
-                    MovieId = Guid.NewGuid(),
-                    Title = newMovie.Title,
-                    YearOfRelease = newMovie.YearOfRelease,
-                    Genres = newMovie.Genres ?? new List<string>()
-                };
-                
-                var response = await Http.PostAsJsonAsync(apiService.GetMoviesEndpoint(), movieToCreate);
-                if (response.IsSuccessStatusCode)
-                {
-                    await RefreshData();
-                    SetStatusMessage($"Successfully created movie: {movieToCreate.Title}", false);
-                    Console.WriteLine($"Created movie: {movieToCreate.Title}");
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    SetStatusMessage($"Failed to create movie: {response.StatusCode}", true);
-                    Console.WriteLine($"Failed to create movie: {response.StatusCode} - {errorContent}");
-                }
-            }
-            catch (Exception ex)
-            {
-                SetStatusMessage($"Error creating movie: {ex.Message}", true);
-                Console.WriteLine($"Error creating movie: {ex.Message}");
-            }
-        }
-    }
+        if (e.Item is not Movie newMovie) return;
 
-    private async Task RefreshData()
-    {
+
         try
         {
-            movies = await Http.GetFromJsonAsync<List<Movie>>(apiService.GetMoviesEndpoint()) ?? new List<Movie>();
-            Console.WriteLine($"Refreshed data: {movies.Count} movies loaded");
+            // Create a new movie with required properties
+            var movieToCreate = new Movie
+            {
+                MovieId = Guid.NewGuid(),
+                Title = newMovie.Title,
+                YearOfRelease = newMovie.YearOfRelease,
+                Genres = newMovie.Genres ?? new List<string>()
+            };
+
+            var success = await MovieService.CreateMovieAsync(movieToCreate);
+
+            if (success)
+            {
+                await LoadMoviesAsync(); // Refresh the grid data
+                SetStatusMessage($"Successfully created movie: {movieToCreate.Title}", false);
+            }
+            else
+            {
+                SetStatusMessage("Failed to create movie", true);
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error refreshing data: {ex.Message}");
+            SetStatusMessage($"Error creating movie: {ex.Message}", true);
         }
     }
+
+
 
     private void SetStatusMessage(string message, bool error)
     {

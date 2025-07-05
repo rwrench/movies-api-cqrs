@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Movies.Api.Contracts.Dto;
+using Movies.Api.Contracts.Models;
 using Movies.Api.Cqrs.Application.Commands;
-using Movies.Api.Cqrs.Application.Models;
 
 public class MovieMappingProfile : Profile
 {

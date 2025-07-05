@@ -1,5 +1,4 @@
-﻿
-namespace Movies.Api.Cqrs.Application.Models;
+﻿namespace Movies.Api.Contracts.Models;
 
 
 public class GetAllMoviesOptions

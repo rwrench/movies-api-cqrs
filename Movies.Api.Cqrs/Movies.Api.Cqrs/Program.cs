@@ -1,9 +1,9 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Movies.Api.Contracts.Models;
 using Movies.Api.Cqrs.Application;
 using Movies.Api.Cqrs.Application.Commands;
-using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Services;
 using Movies.Api.Cqrs.Application.Validators;
 using Movies.Api.Cqrs.Infrastructure.Handlers;

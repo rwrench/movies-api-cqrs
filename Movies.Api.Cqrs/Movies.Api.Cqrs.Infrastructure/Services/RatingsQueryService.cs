@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Movies.Api.Contracts.Dto;
 using AutoMapper;
-using Movies.Api.Cqrs.Application.Models;
 
 namespace Movies.Api.Cqrs.Infrastructure.Services;
 

@@ -1,6 +1,6 @@
 using FluentValidation;
-using Movies.Api.Cqrs.Application.Models;
 using Microsoft.EntityFrameworkCore;
+using Movies.Api.Contracts.Models;
 
 namespace Movies.Api.Cqrs.Infrastructure.Validators;
 

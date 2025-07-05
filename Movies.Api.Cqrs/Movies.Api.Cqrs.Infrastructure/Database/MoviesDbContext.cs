@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Movies.Api.Cqrs.Application.Models;
+using Movies.Api.Contracts.Models;
 using System.Collections.Generic;
 
 public class MoviesDbContext : DbContext

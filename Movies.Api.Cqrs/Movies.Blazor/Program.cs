@@ -19,6 +19,7 @@ builder.Services.AddSingleton(apiSettings);
 
 // Register services
 builder.Services.AddScoped<IApiService, ApiService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

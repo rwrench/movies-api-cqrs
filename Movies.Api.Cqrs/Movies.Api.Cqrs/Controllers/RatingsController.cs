@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Api.Cqrs.Application.Commands;
-using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Queries;
 using Movies.Api.Contracts.Dto;
 

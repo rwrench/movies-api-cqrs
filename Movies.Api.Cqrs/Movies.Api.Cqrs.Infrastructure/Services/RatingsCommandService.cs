@@ -1,9 +1,9 @@
 using FluentValidation;
 using Movies.Api.Cqrs.Application.Commands;
-using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Movies.Api.Contracts.Models;
 
 namespace Movies.Api.Cqrs.Infrastructure.Services
 {
