@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Movie.Contracts\Movies.Api.Contracts.csproj" />
     <ProjectReference Include="..\Movies.Api.Cqrs.Application\Movies.Api.Cqrs.Application.csproj" />
-    <ProjectReference Include="..\Movies.Api.Cqrs.Infrastructure\Movies.Api.Cqrs.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
