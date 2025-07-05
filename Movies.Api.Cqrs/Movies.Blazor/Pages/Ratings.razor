@@ -3,34 +3,370 @@
 @using Telerik.Blazor.Components
 @using global::Movies.Api.Cqrs.Application.Dto
 @using global::Movies.Api.Cqrs.Application.Models
+@using Telerik.DataSource
 @inject HttpClient Http
 
 <PageTitle>Ratings</PageTitle>
 
 <h1>Ratings</h1>
 
-<TelerikGrid Data="@ratings" Pageable="true" Sortable="true" Groupable="true" Height="400px">
+@if (!string.IsNullOrEmpty(statusMessage))
+{
+    <div class="alert @(isError ? "alert-danger" : "alert-success")" role="alert">
+        @statusMessage
+    </div>
+}
+
+<TelerikGrid Data="@ratings"
+             Pageable="true"
+             PageSize="20"
+             Sortable="true"
+             Height="80vh"
+             FilterMode="Telerik.Blazor.GridFilterMode.FilterRow"
+             EditMode="GridEditMode.Inline"
+             Resizable="true"
+             @ref="gridRef"
+             OnUpdate="@OnUpdateHandler"
+             OnDelete="@OnDeleteHandler"
+             OnCreate="@OnCreateHandler"
+             OnEdit="@OnEditHandler"
+             OnCancel="@OnCancelHandler">
+    <GridToolBarTemplate>
+        <GridCommandButton Command="Add">Add Rating</GridCommandButton>
+    </GridToolBarTemplate>
     <GridColumns>
-        <GridColumn Field="MovieName" Title="Title" />
-        <GridColumn Field="Rating" Title="Rating" />
-        <GridColumn Field="DateUpdated" Title="Date Updated" />
+        <GridColumn Field="MovieName" Title="Movie" Width="400px">
+            <EditorTemplate Context="context">
+                @{
+                    var rating = context as MovieRatingWithNameDto;
+                    if (rating != null)
+                    {
+                        <TelerikComboBox Data="@movieSearchResults"
+                                         TextField="@nameof(MovieDropdownDto.DisplayText)"
+                                         ValueField="@nameof(MovieDropdownDto.Id)"
+                                         @bind-Value="@rating.MovieId"
+                                         OnRead="@OnMovieSearchRead"
+                                         OnChange="@((object value) => OnMovieSelectionChanged(value, rating))"
+                                         Placeholder="Type to search for a movie..."
+                                         Filterable="true"
+                                         FilterOperator="@StringFilterOperator.Contains"
+                                         ShowClearButton="true"
+                                         Width="100%" />
+                    }
+                }
+            </EditorTemplate>
+        </GridColumn>
+        <GridColumn Field="Rating" Title="Rating" Editable="true" Width="120px" />
+        <GridColumn Field="DateUpdated" Title="Date Updated" Width="200px" />
+        <GridCommandColumn Width="280px">
+            <GridCommandButton Command="Edit" ShowInEdit="false">Edit</GridCommandButton>
+            <GridCommandButton Command="Delete" ShowInEdit="false">Delete</GridCommandButton>
+            <GridCommandButton Command="Save" ShowInEdit="true">Save</GridCommandButton>
+            <GridCommandButton Command="Cancel" ShowInEdit="true">Cancel</GridCommandButton>
+        </GridCommandColumn>
     </GridColumns>
 </TelerikGrid>
 
 @code {
     private List<MovieRatingWithNameDto> ratings = new();
+    private List<MovieDropdownDto> movieSearchResults = new();
+    private TelerikGrid<MovieRatingWithNameDto>? gridRef;
+    private string statusMessage = "";
+    private bool isError = false;
+    private Guid? selectedMovieId;
+    private MovieRatingWithNameDto? currentEditingRating;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
+    }
 
+    private async Task LoadData()
+    {
+        try
+        {
+            // Load ratings
+            ratings = await Http.GetFromJsonAsync<List<MovieRatingWithNameDto>>("https://localhost:7026/api/Ratings")
+                ?? new List<MovieRatingWithNameDto>();
+
+            SetStatusMessage($"Loaded {ratings.Count} ratings", false);
+        }
+        catch (Exception ex)
+        {
+            SetStatusMessage($"Error fetching data: {ex.Message}", true);
+            Console.WriteLine($"Error fetching data: {ex.Message}");
+        }
+    }
+
+    private async Task OnMovieSearchRead(ComboBoxReadEventArgs args)
+    {
+        try
+        {
+            string searchTerm = "";
+
+            // Extract search term from filter
+            if (args.Request.Filters.Any())
+            {
+                var filter = args.Request.Filters.First() as FilterDescriptor;
+                if (filter != null)
+                {
+                    searchTerm = filter.Value?.ToString() ?? "";
+                }
+            }
+
+            Console.WriteLine($"ComboBox searching for movies with term: '{searchTerm}'");
+
+            if (string.IsNullOrWhiteSpace(searchTerm) || searchTerm.Length < 2)
+            {
+                movieSearchResults = new List<MovieDropdownDto>();
+                return;
+            }
+
+            var searchUrl = $"https://localhost:7026/api/Movies/search?searchTerm={Uri.EscapeDataString(searchTerm)}&take=10";
+            Console.WriteLine($"Making API call to: {searchUrl}");
+
+            var results = await Http.GetFromJsonAsync<List<MovieDropdownDto>>(searchUrl) ?? new List<MovieDropdownDto>();
+
+            movieSearchResults = results;
+            args.Data = movieSearchResults;
+            Console.WriteLine($"Found {movieSearchResults.Count} movies");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error searching movies: {ex.Message}");
+            movieSearchResults = new List<MovieDropdownDto>();
+            args.Data = movieSearchResults;
+        }
+    }
+
+    private Task OnEditHandler(GridCommandEventArgs e)
+    {
+        Console.WriteLine("Edit handler called");
+        if (e.Item is MovieRatingWithNameDto rating)
+        {
+            currentEditingRating = rating;
+            selectedMovieId = rating.MovieId;
+            Console.WriteLine($"Editing rating: {rating.MovieName}, MovieId: {rating.MovieId}");
+        }
+        return Task.CompletedTask;
+    }
+
+    private Task OnCancelHandler(GridCommandEventArgs e)
+    {
+        Console.WriteLine("Cancel handler called");
+        selectedMovieId = null;
+        currentEditingRating = null;
+        ClearStatusMessage();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnUpdateHandler(GridCommandEventArgs e)
+    {
+        Console.WriteLine("Update handler called");
+
+        if (e.Item is MovieRatingWithNameDto updatedRating)
+        {
+            // Update the MovieId based on the selected value
+            if (selectedMovieId.HasValue)
+            {
+                updatedRating.MovieId = selectedMovieId.Value;
+                // Find the movie name from the search results
+                var selectedMovie = movieSearchResults.FirstOrDefault(m => m.Id == selectedMovieId.Value);
+                if (selectedMovie != null)
+                {
+                    updatedRating.MovieName = selectedMovie.DisplayText;
+                }
+            }
+
+            // Validate that we have a valid MovieId
+            if (updatedRating.MovieId == Guid.Empty)
+            {
+                SetStatusMessage("Please select a movie before saving the rating", true);
+                return;
+            }
+
+            Console.WriteLine($"Attempting to update rating: {updatedRating.Id}");
+
+            try
+            {
+                var updateDto = new
+                {
+                    MovieId = updatedRating.MovieId,
+                    Rating = updatedRating.Rating,
+                    UserId = updatedRating.UserId,
+                    DateUpdated = DateTime.UtcNow
+                };
+
+                Console.WriteLine($"Sending update request to: https://localhost:7026/api/Ratings/{updatedRating.Id}");
+                Console.WriteLine($"Update data: MovieId: {updateDto.MovieId}, Rating: {updateDto.Rating}");
+
+                var response = await Http.PutAsJsonAsync($"https://localhost:7026/api/Ratings/{updatedRating.Id}", updateDto);
+
+                Console.WriteLine($"Response status: {response.StatusCode}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    SetStatusMessage($"Successfully updated rating", false);
+                    await RefreshData();
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    SetStatusMessage($"Failed to update rating: {response.StatusCode}", true);
+                    Console.WriteLine($"Failed to update rating: {response.StatusCode} - {errorContent}");
+                }
+            }
+            catch (Exception ex)
+            {
+                SetStatusMessage($"Error updating rating: {ex.Message}", true);
+                Console.WriteLine($"Error updating rating: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("e.Item is not a MovieRatingWithNameDto");
+            SetStatusMessage("Invalid rating data", true);
+        }
+
+        selectedMovieId = null;
+        currentEditingRating = null;
+    }
+
+    private async Task OnDeleteHandler(GridCommandEventArgs e)
+    {
+        Console.WriteLine("Delete handler called");
+
+        if (e.Item is MovieRatingWithNameDto ratingToDelete)
+        {
+            try
+            {
+                var response = await Http.DeleteAsync($"https://localhost:7026/api/Ratings/{ratingToDelete.Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    ratings.Remove(ratingToDelete);
+                    SetStatusMessage($"Successfully deleted rating", false);
+                    Console.WriteLine($"Deleted rating: {ratingToDelete.Id}");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    SetStatusMessage($"Failed to delete rating: {response.StatusCode}", true);
+                    Console.WriteLine($"Failed to delete rating: {response.StatusCode} - {errorContent}");
+                }
+            }
+            catch (Exception ex)
+            {
+                SetStatusMessage($"Error deleting rating: {ex.Message}", true);
+                Console.WriteLine($"Error deleting rating: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task RefreshData()
+    {
         try
         {
             ratings = await Http.GetFromJsonAsync<List<MovieRatingWithNameDto>>("https://localhost:7026/api/Ratings")
                 ?? new List<MovieRatingWithNameDto>();
+            Console.WriteLine($"Refreshed data: {ratings.Count} ratings loaded");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching movies: {ex.Message}");
+            Console.WriteLine($"Error refreshing data: {ex.Message}");
+        }
+    }
+
+    private void SetStatusMessage(string message, bool error)
+    {
+        statusMessage = message;
+        isError = error;
+        StateHasChanged();
+
+        Task.Delay(5000).ContinueWith(_ => ClearStatusMessage());
+    }
+
+    private void ClearStatusMessage()
+    {
+        statusMessage = "";
+        StateHasChanged();
+    }
+    private async Task OnCreateHandler(GridCommandEventArgs e)
+    {
+        Console.WriteLine("Create handler called");
+
+        if (e.Item is MovieRatingWithNameDto newRating)
+        {
+            // The MovieId should already be set by the ComboBox binding and OnMovieSelectionChanged
+            Console.WriteLine($"NewRating MovieId: {newRating.MovieId}, MovieName: {newRating.MovieName}");
+
+            // Validate that we have a valid MovieId
+            if (newRating.MovieId == Guid.Empty)
+            {
+                SetStatusMessage("Please select a movie before saving the rating", true);
+                return;
+            }
+
+            try
+            {
+                // Create the proper command structure that matches the API
+                var ratingToCreate = new
+                {
+                    MovieId = newRating.MovieId,
+                    Rating = newRating.Rating,
+                    UserId = newRating.UserId
+                };
+
+                Console.WriteLine($"Creating rating for MovieId: {ratingToCreate.MovieId}, Rating: {ratingToCreate.Rating}");
+
+                var response = await Http.PostAsJsonAsync("https://localhost:7026/api/Ratings", ratingToCreate);
+
+                Console.WriteLine($"Response status: {response.StatusCode}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    await RefreshData();
+                    SetStatusMessage($"Successfully created rating", false);
+                    Console.WriteLine($"Created rating for movie: {newRating.MovieId}");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    SetStatusMessage($"Failed to create rating: {response.StatusCode}", true);
+                    Console.WriteLine($"Failed to create rating: {response.StatusCode} - {errorContent}");
+                }
+            }
+            catch (Exception ex)
+            {
+                SetStatusMessage($"Error creating rating: {ex.Message}", true);
+                Console.WriteLine($"Error creating rating: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("e.Item is not a MovieRatingWithNameDto");
+            SetStatusMessage("Invalid rating data", true);
+        }
+
+        // Clear the current editing state
+        currentEditingRating = null;
+    }
+
+    private void OnMovieSelectionChanged(object value, MovieRatingWithNameDto rating)
+    {
+        if (value is Guid movieId)
+        {
+            Console.WriteLine($"Movie selection changed to: {movieId}");
+
+            // Find the selected movie and update the rating's movie name
+            var selectedMovie = movieSearchResults.FirstOrDefault(m => m.Id == movieId);
+            if (selectedMovie != null)
+            {
+                rating.MovieId = movieId;
+                rating.MovieName = selectedMovie.DisplayText;
+                Console.WriteLine($"Updated rating - MovieId: {rating.MovieId}, MovieName: {rating.MovieName}");
+            }
         }
     }
 }

@@ -6,6 +6,8 @@ using Movies.Api.Cqrs.Application.Commands;
 using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Services;
 using Movies.Api.Cqrs.Application.Validators;
+using Movies.Api.Cqrs.Infrastructure.Handlers;
+
 // Import Infrastructure services and validators
 using Movies.Api.Cqrs.Infrastructure.Services;
 using Movies.Api.Cqrs.Infrastructure.Validators;
@@ -23,11 +25,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(MovieMappingProfile).Assembly);
 
+// Register MediatR from both Application and Infrastructure assemblies
 builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly));
+{
+    cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly); // Application assembly
+    cfg.RegisterServicesFromAssembly(typeof(CreateRatingCommandHandler).Assembly); // Infrastructure assembly
+});
 
-// REPOSITORY PATTERN REMOVED! 
-// Register Infrastructure services that use DbContext directly
 builder.Services.AddScoped<IMovieQueryService, Movies.Api.Cqrs.Infrastructure.Services.MovieQueryService>();
 builder.Services.AddScoped<IMovieCommandService, Movies.Api.Cqrs.Infrastructure.Services.MovieCommandService>();
 builder.Services.AddScoped<IRatingsCommandService, Movies.Api.Cqrs.Infrastructure.Services.RatingsCommandService>();

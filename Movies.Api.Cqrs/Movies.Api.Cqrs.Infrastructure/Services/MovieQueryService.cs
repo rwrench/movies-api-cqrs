@@ -34,10 +34,10 @@ namespace Movies.Api.Cqrs.Infrastructure.Services
             
             var moviesQuery = _context.Movies.AsQueryable();
 
-            // Apply filters
             if (!string.IsNullOrWhiteSpace(query.options.Title))
             {
-                moviesQuery = moviesQuery.Where(m => m.Title.Contains(query.options.Title));
+                moviesQuery = moviesQuery.Where(m =>
+                    m.Title.StartsWith(query.options.Title));
             }
 
             if (query.options.YearOfRelease.HasValue)

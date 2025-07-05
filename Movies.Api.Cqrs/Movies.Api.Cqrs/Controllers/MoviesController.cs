@@ -6,6 +6,7 @@ using Movies.Api.Cqrs.Application.Models;
 using Movies.Api.Cqrs.Application.Queries;
 using Movies.Api.Cqrs.Dto;
 using System.Globalization;
+using Movies.Api.Cqrs.Application.Dto;
 
 namespace Movies.Api.Cqrs.Controllers;
 
@@ -203,6 +204,35 @@ public class MoviesController : Controller
         await dbContext.SaveChangesAsync();
 
         return Ok($"{records.Count} movies imported.");
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchMovies(
+        [FromQuery] string searchTerm = "", 
+        [FromQuery] int take = 15,
+        CancellationToken token = default)
+    {
+        _logger.LogInformation("SearchMovies called with searchTerm: {SearchTerm}", searchTerm);
+        
+        var options = new GetAllMoviesOptions
+        {
+            Title = searchTerm,
+            PageSize = take
+        };
+        
+        var movies = await _mediator.Send(new GetAllMoviesQuery(options), token);
+        
+        var searchResults = movies
+            .Where(m => m != null)
+            .Select(m => new MovieDropdownDto
+            {
+                Id = m!.MovieId,
+                Title = m.Title,
+                YearOfRelease = m.YearOfRelease
+            })
+            .ToList();
+        
+        return Ok(searchResults);
     }
 }
 
